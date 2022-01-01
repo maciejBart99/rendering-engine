@@ -1,15 +1,10 @@
-/**
- * Main.cpp skeleton
- * Contributors:
- *      * Arthur Sonzogni
- * Licence:
- *      * MIT
- */
+#include "engine/application/Application.h"
 
-#include "MyApplication.hpp"
+int main()
+{
+  Application application("Car race", 500, 500);
 
-int main(int argc, const char* argv[]) {
-  MyApplication app;
-  app.run();
+  application.start();
+
   return 0;
 }
