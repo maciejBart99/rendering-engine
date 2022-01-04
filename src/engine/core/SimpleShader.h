@@ -16,6 +16,7 @@ class SimpleShader
  public:
 
   SimpleShader(const char* vertexPath, const char* fragmentPath);
+  SimpleShader(const char* vertexPath, const char* fragmentPath, const char* geometryShader);
 
   void use() const
   {

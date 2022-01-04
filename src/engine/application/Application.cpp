@@ -1,8 +1,19 @@
 #include "Application.h"
 #include "stb_image.h"
-#include "../core/SimpleShader.h"
-#include "../core/Model.h"
-#include "../core/Camera.h"
+
+#include <set>
+
+set<int> activeKeys;
+
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+  if (action == GLFW_PRESS) {
+    activeKeys.insert(key);
+  } else if (action == GLFW_RELEASE) {
+    activeKeys.erase(key);
+  }
+}
 
 void Application::start() {
   glfwInit();
@@ -23,6 +34,8 @@ void Application::start() {
 
   glfwMakeContextCurrent(window);
   glfwSetFramebufferSizeCallback(window, resizeCallback);
+  glfwSetKeyCallback(window, key_callback);
+  glfwMakeContextCurrent(window);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -30,67 +43,36 @@ void Application::start() {
     throw "Cannot initialize graphics";
   }
 
-  stbi_set_flip_vertically_on_load(true);
+//  stbi_set_flip_vertically_on_load(true);
   glEnable(GL_DEPTH_TEST);
 
-  Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-  float lastX = width / 2.0f;
-  float lastY = height / 2.0f;
-
-  SimpleShader ourShader("resources/shaders/basic-vertex.vs", "resources/shaders/basic-fragment.fs");
-
-  // load models
-  // -----------
-  Model ourModel("resources/models/backpack/backpack.obj");
-
-
-  // draw in wireframe
   //  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-  float deltaTime = 0.0f;
-  float lastFrame = 0.0f;
+  float deltaTime = 0;
+  float lastFrame = 0;
 
-  // render loop
-  // -----------
+  Engine engine(components, width, height);
+  engine.initializeComponentModel();
+
   while (!glfwWindowShouldClose(window))
   {
-    // per-frame time logic
-    // --------------------
-    float currentFrame = glfwGetTime();
+    auto currentFrame = (float) glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-    // render
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
       glfwSetWindowShouldClose(window, true);
-    // ------
-    glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // don't forget to enable shader before setting uniforms
-    ourShader.use();
+    engine.nextFrame(deltaTime, activeKeys);
 
-    // view/projection transformations
-    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)width / (float)height, 0.1f, 100.0f);
-    glm::mat4 view = camera.GetViewMatrix();
-    ourShader.set("projection", projection);
-    ourShader.set("view", view);
-
-    // render the loaded model
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-    model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-    ourShader.set("model", model);
-    ourModel.render(ourShader);
-
-    // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-    // -------------------------------------------------------------------------------
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
 
-  // glfw: terminate, clearing all previously allocated GLFW resources.
-  // ------------------------------------------------------------------
   glfwTerminate();
+}
+void Application::addComponent(const shared_ptr<Component>& component) {
+  components.push_back(component);
 }
 
 void resizeCallback(GLFWwindow* window, int width, int height)

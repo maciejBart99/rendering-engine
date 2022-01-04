@@ -26,6 +26,11 @@ struct Texture {
 };
 
 struct Material {
+  glm::vec3 ks;
+  glm::vec3 kd;
+  glm::vec3 ka;
+  float opacity;
+  int shiness;
   vector<Texture> textures;
 };
 

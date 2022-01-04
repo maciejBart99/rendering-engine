@@ -115,10 +115,28 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     std::vector<Texture> normalMaps = loadMaterial(material, aiTextureType_HEIGHT, "texture_normal");
     textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-    std::vector<Texture> heightMaps = loadMaterial(material, aiTextureType_AMBIENT, "texture_height");
-    textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+
+    aiColor3D diffuseColor;
+    material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
+
+    aiColor3D specularColor;
+    material->Get(AI_MATKEY_COLOR_SPECULAR, specularColor);
+
+    aiColor3D ambientColor;
+    material->Get(AI_MATKEY_COLOR_AMBIENT, ambientColor);
+
+    float shiness;
+    material->Get(AI_MATKEY_SHININESS, shiness);
+
+    float opacity;
+    material->Get(AI_MATKEY_OPACITY, opacity);
 
     Material m;
+    m.opacity = opacity;
+    m.ks = glm::vec3(specularColor.r, specularColor.g, specularColor.b);
+    m.kd = glm::vec3(diffuseColor.r, diffuseColor.g, diffuseColor.b);
+    m.shiness = (int)shiness;
+    m.ka = glm::vec3(ambientColor.r, ambientColor.g, ambientColor.b);
     m.textures = textures;
 
     return {vertices, indices, m};

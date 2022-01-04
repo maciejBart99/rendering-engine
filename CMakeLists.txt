@@ -10,8 +10,12 @@ add_executable(main
         src/main.cpp
         src/engine/core/Mesh.h src/engine/core/Mesh.cpp
         src/engine/core/SimpleShader.h src/engine/core/SimpleShader.cpp
+        src/engine/data_model/Component.cpp src/engine/data_model/Component.h
+        src/engine/data_model/data_model.h
         src/engine/core/Camera.h
-        src/engine/core/Model.h src/engine/core/Model.cpp src/engine/application/Application.cpp src/engine/application/Application.h src/engine/data_model.h src/engine/core/Engine.cpp src/engine/core/Engine.h)
+        src/engine/core/Model.h src/engine/core/Model.cpp
+        src/engine/application/Application.cpp src/engine/application/Application.h
+        src/engine/core/Engine.cpp src/engine/core/Engine.h)
 set_property(TARGET main PROPERTY CXX_STANDARD 11)
 target_compile_options(main PRIVATE -Wall)
 

@@ -4,16 +4,22 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <vector>
 #include <exception>
+#include "../data_model/Component.h"
+#include "../core/Engine.h"
+
+using namespace std;
 
 class Application {
  private:
-  GLFWwindow* window{};
   const char* name;
   int width, height;
+  vector<shared_ptr<Component>> components;
 
  public:
   Application(const char* name, int width, int height): name(name), width(width), height(height) {}
+  void addComponent(const shared_ptr<Component>& component);
   void start();
 };
 

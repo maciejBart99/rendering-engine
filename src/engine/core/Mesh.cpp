@@ -1,5 +1,6 @@
 #include "Mesh.h"
 
+#include <iostream>
 #include <utility>
 
 Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, Material material)
@@ -32,19 +33,41 @@ Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, Material mater
 
 void Mesh::render(SimpleShader& shader)
 {
+  bool hasDiffuse = false;
+  bool hasSpecular = false;
+  bool hasNormal = false;
+
   for(unsigned int i = 0; i < material.textures.size(); i++)
   {
     glActiveTexture(GL_TEXTURE0 + i);
 
     Texture texture = material.textures[i];
 
-    glUniform1i(glGetUniformLocation(shader.getOpenglId(), texture.type.c_str()), i);
+    if (texture.type == "texture_diffuse") {
+      shader.set("material.kdMap", (int) i);
+      hasDiffuse = true;
+    } else if (texture.type == "texture_specular") {
+      shader.set("material.ksMap", (int) i);
+      hasSpecular = true;
+    } else if (texture.type == "texture_normal") {
+      shader.set("material.nMap", (int) i);
+      hasNormal = true;
+    }
+
     glBindTexture(GL_TEXTURE_2D, texture.id);
   }
+
+  shader.set("material.Ks", material.ks);
+  shader.set("material.Kd", material.kd);
+  shader.set("material.Ka", material.ka);
+  shader.set("material.shiness", material.shiness);
+  shader.set("material.hasNMap", (int)hasNormal);
+  shader.set("material.hasKdMap", (int)hasDiffuse);
+  shader.set("material.hasKsMap", (int)hasSpecular);
+  shader.set("material.opacity", material.opacity == 0 ? 1 : material.opacity);
 
   glBindVertexArray(VAO);
   glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
-
   glActiveTexture(GL_TEXTURE0);
 }

@@ -28,6 +28,42 @@ SimpleShader::SimpleShader(const char* vertexPath, const char* fragmentPath) {
   glDeleteShader(vertex);
   glDeleteShader(fragment);
 }
+SimpleShader::SimpleShader(const char* vertexPath, const char* fragmentPath,
+                           const char* geometryShader)
+{
+  std::string vCode = readShaderSourceCode(vertexPath);
+  std::string fCode = readShaderSourceCode(fragmentPath);
+  std::string gCode = readShaderSourceCode(geometryShader);
+
+  const char* cvCode = vCode.c_str();
+  const char* cfCode = fCode.c_str();
+  const char* cgCode = gCode.c_str();
+
+  GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
+  glShaderSource(vertex, 1, &cvCode, nullptr);
+  glCompileShader(vertex);
+  checkCompilationResult(vertex, false);
+
+  GLuint fragment = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(fragment, 1, &cfCode, nullptr);
+  glCompileShader(fragment);
+  checkCompilationResult(fragment, false);
+
+  GLuint geometry = glCreateShader(GL_GEOMETRY_SHADER);
+  glShaderSource(geometry, 1, &cgCode, nullptr);
+  glCompileShader(geometry);
+  checkCompilationResult(geometry, false);
+
+  openglId = glCreateProgram();
+  glAttachShader(openglId, vertex);
+  glAttachShader(openglId, fragment);
+  glAttachShader(openglId, geometry);
+  glLinkProgram(openglId);
+  checkCompilationResult(openglId, true);
+
+  glDeleteShader(vertex);
+  glDeleteShader(fragment);
+}
 
 std::string readShaderSourceCode(const char* path) {
   std::ifstream file;
