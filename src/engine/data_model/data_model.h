@@ -21,7 +21,7 @@ struct Fog
   float density;
 };
 
-struct Skybox {
+struct SkyboxTextures {
   int width;
   int height;
   vector<unsigned char *> faces;
@@ -29,7 +29,7 @@ struct Skybox {
 
 struct Light
 {
-  enum LightType { DIRECTIONAL = 0, SPOT = 1, POINT = 2 } type;
+  enum class LightType { DIRECTIONAL = 0, SPOT = 1, POINT = 2 } type = LightType::DIRECTIONAL;
   glm::vec3 position;
   glm::vec3 direction;
   glm::vec3 ambient;
@@ -44,17 +44,20 @@ struct Light
 
 struct SceneState
 {
-  Engine* engine;
-  enum LightModel { PHONG = 0, BLINN = 1 } lightModel = BLINN;
-  enum ShadingMode { SH_PHONG = 0, GOURAUD = 1 } shadingModel = SH_PHONG;
-  vector<shared_ptr<Component>> components;
-  float deltaTime;
-  float lightness;
-  shared_ptr<Camera> activeCamera;
-  unique_ptr<Fog> fog;
-  set<int> activeKeys;
   int width;
   int height;
+
+  Engine* engine;
+  vector<unique_ptr<Component>> components;
+
+  Camera* activeCamera = nullptr;
+  Fog fog;
+  set<int> activeKeys;
+  float deltaTime;
+  float lightness;
+
+  enum class LightModel { PHONG = 0, BLINN = 1 } lightModel = LightModel::BLINN;
+  enum class ShadingMode { PHONG = 0, GOURAUD = 1 } shadingModel = ShadingMode::PHONG;
 };
 
 #endif

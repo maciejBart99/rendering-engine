@@ -3,6 +3,7 @@
 
 #include "../data_model/data_model.h"
 #include "../data_model/Component.h"
+#include "./Skybox.h"
 #include <map>
 
 using namespace std;
@@ -10,20 +11,18 @@ using namespace std;
 class Engine {
  private:
     SceneState state;
-    GLuint skyboxVAO, skyboxVBO, skyboxTexture = -1;
+    unique_ptr<Skybox> skybox;
     map<string, shared_ptr<SimpleShader>> shadersCache;
     map<string, shared_ptr<Model>> modelsCache;
-    shared_ptr<SimpleShader> skyboxShader;
  public:
-  Engine(vector<shared_ptr<Component>> components, int width, int height);
+  Engine(vector<unique_ptr<Component>> components, int width, int height);
   void initializeComponentModel();
   void nextFrame(float deltaTime, const set<int> &keys);
-  void addSkybox(const Skybox& skybox, const char* shaderVertex, const char* shaderFragment);
+  void addSkybox(const SkyboxTextures& skybox, const char* shaderVertex, const char* shaderFragment);
  private:
   void updateShaders();
   void initializeResources();
-  void renderSkybox(glm::mat4 projection);
-  vector<shared_ptr<Light>> getLights();
+  vector<Light*> getLights();
 };
 
 #endif

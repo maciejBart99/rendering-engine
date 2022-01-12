@@ -20,8 +20,8 @@ class Component {
   vector<const char*> vertexShaderPaths;
   vector<const char*> fragmentShaderPaths;
   vector<const char*> modelPaths;
-  vector<shared_ptr<Light>> lights;
-  vector<shared_ptr<Camera>> camera;
+  vector<unique_ptr<Light>> lights;
+  vector<unique_ptr<Camera>> camera;
   vector<glm::vec3> modelPosition;
   vector<glm::vec3> modelRotations;
   vector<glm::vec3> cameraOffsets;
@@ -36,9 +36,8 @@ class Component {
   int addModel(const char* modelPath, const char* vertexShader,
                 const char* fragmentShader, glm::vec3 pos = glm::vec3(0, 0, 0),
                glm::vec3 rotation = glm::vec3(0, 0, 0));
-  int addPointLight(glm::vec3 ambient, glm::vec3 specular,
-                    glm::vec3 diffuse, float constant = 1, float linear = 0.1, float q = 0.03);
-  int addSpotLight(glm::vec3 ambient, glm::vec3 specular, glm::vec3 direction, float cutOff, float outerCutOff,
+  int addPointLight(glm::vec3 diffuse, float constant = 1, float linear = 0.1, float q = 0.03);
+  int addSpotLight(glm::vec3 direction, float cutOff, float outerCutOff,
                     glm::vec3 diffuse, float constant = 1, float linear = 0.1, float q = 0.03);
   int addDirLight(glm::vec3 direction, glm::vec3 ambient, glm::vec3 specular,
                     glm::vec3 diffuse);
@@ -62,11 +61,14 @@ class Component {
   glm::vec3& getCameraFronts(int i) {
     return cameraFronts[i];
   }
-  shared_ptr<Light> getLight(int i) {
-      return lights[i];
+  Light* getLight(int i) {
+    return lights[i].get();
   }
-  shared_ptr<Camera> getCamera(int i) const {
-    return camera[i];
+  Camera* getCamera(int i) {
+    return camera[i].get();
+  }
+  Model* getModel(int i) {
+    return models[i].get();
   }
 
  public:
@@ -82,14 +84,14 @@ class Component {
   const vector<const char*>& getVertexShaderPaths() const;
   const vector<const char*>& getFragmentShaderPaths() const;
   const vector<const char*>& getModelPaths() const;
-  const vector<shared_ptr<Camera>>& getCamera() const;
-  const vector<shared_ptr<Light>>& getLights() const;
+  const vector<unique_ptr<Camera>>& getCamera() const;
+  const vector<unique_ptr<Light>>& getLights() const;
 
   void translate(glm::vec3 delta);
   void rotate(glm::vec3 delta);
 
-  const glm::vec3& getPosition() const;
-  const glm::vec3& getRotations() const;
+  glm::vec3& getPosition();
+  glm::vec3& getRotations();
   const glm::vec3& getScale() const;
 
   void setPosition(const glm::vec3& position);

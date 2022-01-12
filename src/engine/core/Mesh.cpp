@@ -3,9 +3,10 @@
 #include <iostream>
 #include <utility>
 
-Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, Material material)
+Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, string name, Material material)
 {
   this->indices = indices;
+  this->name = name;
   this->material = std::move(material);
 
   glGenVertexArrays(1, &VAO);
@@ -57,6 +58,10 @@ void Mesh::render(SimpleShader& shader)
     glBindTexture(GL_TEXTURE_2D, texture.id);
   }
 
+  if (useIndividualTransformation) {
+    shader.set("iModel", individualTransformation);
+  }
+  shader.set("useIModel", (int)useIndividualTransformation);
   shader.set("material.Ks", material.ks);
   shader.set("material.Kd", material.kd);
   shader.set("material.Ka", material.ka);
@@ -70,4 +75,11 @@ void Mesh::render(SimpleShader& shader)
   glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
   glActiveTexture(GL_TEXTURE0);
+}
+void Mesh::setUseIndividualTransformation(bool useIndividualTransformation) {
+  this->useIndividualTransformation = useIndividualTransformation;
+}
+void Mesh::setIndividualTransformation(
+    const glm::mat4& individualTransformation) {
+  this->individualTransformation = individualTransformation;
 }

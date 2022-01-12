@@ -17,5 +17,5 @@ uniform Fog fog;
 
 void main()
 {
-    FragColor = mix(texture(skybox, TexCoords) * lightness, vec4(fog.color, 1.0), fog.density * 20);
+    FragColor = mix(texture(skybox, TexCoords) * clamp(vec4(lightness * 0.8, lightness * 0.8, lightness * 1.4, 1), 0, 1), vec4(fog.color, 1.0), clamp(fog.density * 20, 0, 1));
 }

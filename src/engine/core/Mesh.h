@@ -39,9 +39,14 @@ class Mesh {
   vector<unsigned int> indices;
   Material material;
   unsigned int VAO, VBO, EBO;
+  string name;
+  bool useIndividualTransformation;
+  glm::mat4 individualTransformation;
 
  public:
-  Mesh(vector<Vertex> vertices, vector<unsigned int> indices, Material material);
+  Mesh(vector<Vertex> vertices, vector<unsigned int> indices, string name, Material material);
   void render(SimpleShader &shader);
+  void setUseIndividualTransformation(bool useIndividualTransformation);
+  void setIndividualTransformation(const glm::mat4& individualTransformation);
 };
 #endif

@@ -8,6 +8,7 @@
 #include <exception>
 #include "../data_model/Component.h"
 #include "../core/Engine.h"
+#include "SceneBuilder.h"
 
 using namespace std;
 
@@ -15,12 +16,14 @@ class Application {
  private:
   const char* name;
   int width, height;
-  vector<shared_ptr<Component>> components;
+  unique_ptr<SceneBuilder> sceneBuilder = unique_ptr<SceneBuilder>(new SceneBuilder());
 
  public:
   Application(const char* name, int width, int height): name(name), width(width), height(height) {}
-  void addComponent(const shared_ptr<Component>& component);
   void start();
+  SceneBuilder* getSceneBuilder() const {
+    return sceneBuilder.get();
+  }
 };
 
 void resizeCallback(GLFWwindow* window, int width, int height);

@@ -15,7 +15,7 @@ add_executable(main
         src/engine/core/Camera.h
         src/engine/core/Model.h src/engine/core/Model.cpp
         src/engine/application/Application.cpp src/engine/application/Application.h
-        src/engine/core/Engine.cpp src/engine/core/Engine.h)
+        src/engine/core/Engine.cpp src/engine/core/Engine.h src/engine/EngineLogger.cpp src/engine/EngineLogger.h src/engine/core/Camera.cpp src/engine/core/Skybox.cpp src/engine/core/Skybox.h src/demo/demo_components.h src/engine/application/KeyListener.h src/engine/application/SceneBuilder.h)
 set_property(TARGET main PROPERTY CXX_STANDARD 11)
 target_compile_options(main PRIVATE -Wall)
 

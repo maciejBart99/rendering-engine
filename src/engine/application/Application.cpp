@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "../EngineLogger.h"
 #include "stb_image.h"
 
 #include <set>
@@ -29,7 +30,8 @@ void Application::start() {
   if (window == nullptr)
   {
     glfwTerminate();
-    throw "Cannot construct application window";
+    EngineLogger::getInstance()->error("Cannot initialize GLFW");
+    exit(1);
   }
 
   glfwMakeContextCurrent(window);
@@ -40,18 +42,16 @@ void Application::start() {
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
   {
-    throw "Cannot initialize graphics";
+    EngineLogger::getInstance()->error("Cannot initialize GLAD");
+    exit(1);
   }
 
-//  stbi_set_flip_vertically_on_load(true);
   glEnable(GL_DEPTH_TEST);
-
-  //  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
   float deltaTime = 0;
   float lastFrame = 0;
 
-  Engine engine(components, width, height);
+  Engine engine(sceneBuilder->getComponents(), width, height);
   engine.initializeComponentModel();
 
   while (!glfwWindowShouldClose(window))
@@ -70,9 +70,6 @@ void Application::start() {
   }
 
   glfwTerminate();
-}
-void Application::addComponent(const shared_ptr<Component>& component) {
-  components.push_back(component);
 }
 
 void resizeCallback(GLFWwindow* window, int width, int height)

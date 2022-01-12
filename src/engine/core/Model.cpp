@@ -1,4 +1,7 @@
 #include "Model.h"
+#include "../EngineLogger.h"
+
+#include <string>
 
 void Model::load(const string& path)
 {
@@ -8,7 +11,7 @@ void Model::load(const string& path)
 
   if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
   {
-    cout << "Model load error\n" << importer.GetErrorString() << endl;
+    EngineLogger::getInstance()->error("Cannot load model: " + string(path));
     return;
   }
 
@@ -21,6 +24,7 @@ void Model::processNode(aiNode* node, const aiScene* scene)
   for(unsigned int i = 0; i < node->mNumMeshes; i++)
   {
     aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+    meshIndices[string(mesh->mName.C_Str())] = meshes.size();
     meshes.push_back(processMesh(mesh, scene));
   }
 
@@ -139,8 +143,11 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     m.ka = glm::vec3(ambientColor.r, ambientColor.g, ambientColor.b);
     m.textures = textures;
 
-    return {vertices, indices, m};
+    return {vertices, indices, string(mesh->mName.C_Str()), m};
   }
+}
+Mesh& Model::getMeshByName(const string& name) {
+    return meshes[meshIndices[name]];
 }
 
 GLuint loadTexture(const char *path)
@@ -162,6 +169,7 @@ GLuint loadTexture(const char *path)
     case 4: format = GL_RGBA;
       break;
     default:
+      EngineLogger::getInstance()->error("Cannot load texture: " + string(path));
       throw invalid_argument("Channels number invalid");
   }
 

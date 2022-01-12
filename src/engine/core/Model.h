@@ -26,6 +26,7 @@ class Model
 {
  private:
   vector<Texture> texturesCache;
+  map<string, int> meshIndices;
   vector<Mesh> meshes;
   string directory;
 
@@ -38,6 +39,7 @@ class Model
   {
     for(auto & mesh : meshes) mesh.render(shader);
   }
+  Mesh& getMeshByName(const string& name);
 
  private:
   void load(string const &path);

@@ -34,19 +34,13 @@ void Component::injectResources(vector<shared_ptr<Model>> models, vector<shared_
   this->models = move(models);
   this->shaders = move(shaders);
 }
-const vector<shared_ptr<Camera>>& Component::getCamera() const {
-  return camera;
-}
-const vector<shared_ptr<Light>>& Component::getLights() const {
-  return lights;
-}
 void Component::translate(glm::vec3 delta)
 {
   position += delta;
   std::for_each(lights.begin(), lights.end(),
-                [&delta] (const shared_ptr<Light>& light) { light->position += delta; });
+                [&delta] (const unique_ptr<Light>& light) { light->position += delta; });
   std::for_each(camera.begin(), camera.end(),
-                [&delta] (const shared_ptr<Camera>& cam) { cam->setPosition(cam->getPosition() + delta); });
+                [&delta] (const unique_ptr<Camera>& cam) { cam->setPosition(cam->getPosition() + delta); });
 }
 void Component::rotate(glm::vec3 delta)
 {
@@ -65,42 +59,41 @@ int Component::addModel(const char* modelPath,
 
   return vertexShaderPaths.size() - 1;
 }
-int Component::addPointLight(glm::vec3 ambient, glm::vec3 specular, glm::vec3 diffuse,
-                             float constant, float linear, float q) {
-  shared_ptr<Light> light(new Light());
-  light->type = Light::POINT;
+int Component::addPointLight(glm::vec3 diffuse, float constant, float linear, float q) {
+  unique_ptr<Light> light(new Light());
+  light->type = Light::LightType::POINT;
   light->position = position;
-  light->ambient = ambient;
+  light->ambient = glm::vec3(0, 0, 0);
   light->diffuse = diffuse;
-  light->specular = specular;
+  light->specular = diffuse;
   light->constant = constant;
   light->linear = linear;
   light->quadratic = q;
 
-  lights.push_back(light);
-  lightDirections.push_back(glm::vec3(0, 0, 0));
-  lightOffsets.push_back(glm::vec3(0, 0, 0));
+  lights.push_back(move(light));
+  lightDirections.emplace_back(0, 0, 0);
+  lightOffsets.emplace_back(0, 0, 0);
 
   return lights.size() - 1;
 }
 int Component::addDirLight(glm::vec3 direction, glm::vec3 ambient,
                            glm::vec3 specular, glm::vec3 diffuse) {
-  shared_ptr<Light> light(new Light());
-  light->type = Light::DIRECTIONAL;
+  unique_ptr<Light> light(new Light());
+  light->type = Light::LightType::DIRECTIONAL;
   light->direction = direction;
   light->ambient = ambient;
   light->diffuse = diffuse;
   light->specular = specular;
 
-  lights.push_back(light);
+  lights.push_back(move(light));
   lightDirections.push_back(direction);
-  lightOffsets.push_back(glm::vec3(0, 0, 0));
+  lightOffsets.emplace_back(0, 0, 0);
 
   return lights.size() - 1;
 }
 
 int Component::addCamera() {
-  camera.push_back(shared_ptr<Camera>(new Camera(position)));
+  camera.push_back(unique_ptr<Camera>(new Camera(position)));
   cameraOffsets.emplace_back(0, 0, 0);
   cameraFronts.emplace_back(0, 0, 1);
 
@@ -109,10 +102,10 @@ int Component::addCamera() {
 void Component::renderDepthMap(SimpleShader& shader) {
 
 }
-const glm::vec3& Component::getPosition() const {
+glm::vec3& Component::getPosition() {
   return position;
 }
-const glm::vec3& Component::getRotations() const {
+glm::vec3& Component::getRotations() {
   return rotations;
 }
 void Component::setPosition(const glm::vec3& pos) {
@@ -129,26 +122,25 @@ const glm::vec3& Component::getScale() const {
 void Component::setScale(const glm::vec3& scale) {
   Component::scale = scale;
 }
-int Component::addSpotLight(glm::vec3 ambient, glm::vec3 specular, glm::vec3 direction, float cutOff, float outerCutOff,
+int Component::addSpotLight(glm::vec3 direction, float cutOff, float outerCutOff,
                     glm::vec3 diffuse, float constant, float linear, float q)
 {
-  shared_ptr<Light> light(new Light());
-  light->type = Light::SPOT;
+  unique_ptr<Light> light(new Light());
+  light->type = Light::LightType::SPOT;
   light->position = position;
-  light->ambient = ambient;
+  light->ambient = glm::vec3(0, 0, 0);
   light->diffuse = diffuse;
-  light->specular = specular;
+  light->specular = diffuse;
   light->constant = constant;
   light->linear = linear;
   light->quadratic = q;
-  light->specular = specular;
   light->cutOff = cutOff;
   light->outerCutOff = outerCutOff;
   light->direction = direction;
 
-  lights.push_back(light);
+  lights.push_back(move(light));
   lightDirections.push_back(direction);
-  lightOffsets.push_back(glm::vec3(0, 0, 0));
+  lightOffsets.emplace_back(0, 0, 0);
 
   return lights.size() - 1;
 }
@@ -167,5 +159,10 @@ void Component::updateCooridnates() {
     camera[i]->setFront(rotationMatrix * glm::vec4(cameraFronts[i], 1.0));
   }
 }
-
+const vector<unique_ptr<Camera>>& Component::getCamera() const {
+  return camera;
+}
+const vector<unique_ptr<Light>>& Component::getLights() const {
+  return lights;
+}
 Component::~Component() = default;
